@@ -13,7 +13,7 @@
 //    동적인 UI 구현: 버튼 클릭, 입력 값 변경 등 사용자의 상호 작용에 따라 UI를 동적으로 변화시킬 수 있습니다.
 //    데이터 관리: 컴포넌트 내부에서 필요한 데이터를 관리하고, 이를 바탕으로 UI를 업데이트할 수 있습니다.
 //    간결하고 효율적인 코드: 클래스형 컴포넌트에 비해 더 간결하고 직관적인 코드를 작성할 수 있습니다.
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import CartHeader from "./components/CartHeader";
 import ShopList from "./components/ShopList";
@@ -22,15 +22,48 @@ import BoughtList from "./components/BoughtList";
 import CartFooter from "./components/CartFooter";
 // import './App.css'
 
+//===========================================================================
+
 function App() {
-  const [itemList, setItemList] = useState([
-    { id: 1, name: "무", isBought: false },
-    { id: 2, name: "배추", isBought: false },
-    { id: 3, name: "쪽파", isBought: true },
-    { id: 4, name: "고춧가루", isBought: false },
-  ]);
+  const apiUrl = "http://localhost:3000/shoplist";
+  // 서버로부터 API 호출해서 쇼핑 목록 받아오기
+
+  // const [itemList, setItemList] = useState([
+  //   { id: 1, name: "무", isBought: false },
+  //   { id: 2, name: "배추", isBought: false },
+  //   { id: 3, name: "쪽파", isBought: true },
+  //   { id: 4, name: "고춧가루", isBought: false },
+  // ]);
+
+  const [itemList, setItemList] = useState([]);
+
+  // API에서 목록 받아오는 함수
+  const fetchItem = async () => {
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error("데이터를 받아오지 못했습니다");
+      }
+      const data = await response.json();
+      console.log(data);
+      setItemList(data);
+      setIsLoading(false); // 로딩이 끝났음을 알림
+    } catch (err) {
+      // console.error(err);
+      setError(err.message);
+      setIsLoading(false); // 로딩이 끝났습니다
+    }
+  };
+  useEffect(() => {
+    fetchItem();
+  }, []); // -> 컴포넌트가 처음 로딩되었을 때의 이펙트 발생
+
   // 산 물건 보기 여부를 체크할 수 있는 state 추가
   const [showBoughtItem, setshowBoughtItem] = useState(true);
+  // 페이지 로딩 상태 체크 state
+  const [isLoading, setIsLoading] = useState(true);
+  // 에러 메세지 출력을 위한 state
+  const [error, setError] = useState(null);
 
   // =====================================================================
   // isBought가 flase 인 것만 필터링 (isBought가 === flase)
@@ -72,6 +105,31 @@ function App() {
 
   // ====================================================================
 
+  if (isLoading) return <div>로딩 중....</div>;
+  if (error) return <div>에러: {error}</div>;
+
+  // 새 아이템 추가!
+  const addNewItem = (name) => {
+    // 새로운 id 생성 (새로운 목록 추가)
+    // -> id의 최댓값에 +1
+    const newId =
+      itemList.length > 0
+        ? Math.max(...itemList.map((item) => item.id)) + 1
+        : 1;
+    // item의 id를 뽑아 전개(...) 하고 새 배열map 만들고 -> 그 중 max 최대값을 꺼내자 : 아니면(최댓값이 없으면) 1);
+
+    // 객체 생성
+    // const newItem = {id: newId, name:name, isBought: false};       => key와 값?이 값으면 짧게 줄여쓸수있음 밑에처럼
+    //    : 속성이 key이름과 값 이름이 같을 때 -> 줄여쓸 수있다
+    //              (ex) name: name => name
+    const newItem = { id: newId, name, isBought: false };
+
+    // itemList에 새 아이쳄 추가,,,,,,,,,,,,,,
+    const newItemList = [...itemList, newItem];
+    setItemList(newItemList);
+  };
+
+  // =======================================================
   return (
     <div>
       <CartHeader />
@@ -108,7 +166,7 @@ function App() {
 
         <hr />
 
-        <CartInput />
+        <CartInput addNewItem={addNewItem} />
 
         <hr />
 
