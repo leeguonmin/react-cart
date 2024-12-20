@@ -81,9 +81,27 @@ function App() {
   };
 
   // id 받아와서 item삭제 (해당된 아이디만 빼고! 나머질르 가져가겠다~ 라는 의미로 삭제할거임)
-  const delteItem = (id) => {
+  const delteItem = async (id) => {
+    /*   로컬 방식
     const newItemLsit = itemList.filter((item) => item.id !== id);
     setItemList(newItemLsit);
+    */
+
+    // DELETE method로 요청하는 방식
+    try {
+      const response = await fetch(`${apiUrl}/${id}`, {
+        // 추가 해서 전송
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("아이템을 삭제하지 못했습니다 ");
+      }
+      //목록 갱신
+      fetchItem();
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
   };
 
   //====================================================================
