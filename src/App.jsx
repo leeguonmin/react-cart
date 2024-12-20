@@ -65,21 +65,48 @@ function App() {
   // 에러 메세지 출력을 위한 state
   const [error, setError] = useState(null);
 
-  // =====================================================================
+  // ============================================================================================
   // isBought가 flase 인 것만 필터링 (isBought가 === flase)
   // 1. itemList에서 뽑아올거임 > 필터할겨 > item이 뽑혀올텐데, 그 중 isBought인 것. 그리고 그 중에서도 false 인거여야 해서 ! 사용
   const shopItem = itemList.filter((item) => !item.isBought);
 
   // (이게 지금 부모함수임?)
   // id 받아와서 isBought를 true <-> false 하는 코드
-  const toggleBought = (id) => {
+  const toggleBought = async (id) => {
+    /* 이런 로컬 방식 
     // 아이디 값 전달받아서
     const newItemLsit = itemList.map((item) =>
       item.id === id ? { ...item, isBought: !item.isBought } : item
     ); // false 을 true로 바꾸는거래
     setItemList(newItemLsit);
+    */
+
+    // 이건 PUT 메서드 사용하는 방식
+    // id로 아이템을 찾아서
+    // 해당 아이템의 isBought 값을 반전 true <-> false
+    const updatedItem = itemList.find((item) => item.id === id);
+    updatedItem.isBought = !updatedItem.isBought;
+    // 서버에 update 요청 전송
+
+    try {
+      const response = await fetch(`${apiUrl}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedItem),
+      });
+      if (!response.ok) {
+        throw new Error("데이터를 수정하지 못했습니다");
+      }
+      fetchItem();
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
   };
 
+  // =======================================================================================================
   // id 받아와서 item삭제 (해당된 아이디만 빼고! 나머질르 가져가겠다~ 라는 의미로 삭제할거임)
   const delteItem = async (id) => {
     /*   로컬 방식
