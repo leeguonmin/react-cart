@@ -25,7 +25,7 @@ import CartFooter from "./components/CartFooter";
 //===========================================================================
 
 function App() {
-  const apiUrl = "http://localhost:1337/shoplist";
+  const apiUrl = "http://localhost:3000/shoplist";
   // 서버로부터 API 호출해서 쇼핑 목록 받아오기
 
   // const [itemList, setItemList] = useState([
