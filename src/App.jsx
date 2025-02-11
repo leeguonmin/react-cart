@@ -31,7 +31,12 @@ function App() {
   // const apiUrl = "http://localhost:1337/shoplist";
   // const apiUrl = "http://localhost:3000/shoplist";
   // const apiUrl = "http://localhost:8088/api/shoplist";
-  const apiUrl = "http://localhost:18088/api/shoplist";
+
+  // .env로부터 환경 변수를 볼러올 때
+  // - CREATE-REACT-APP 에서는 process,env.REACT_APP_ 환경 변수
+  // VITE에서는 import.meta.env.VITE_ 환경 변수를 읽을 수 있다
+  // const apiUrl = "http://localhost:18088/api/shoplist";
+  const apiUrl = `http://${import.meta.env.VITE_API_HOST}:18088/api/shoplist`;
 
   // const [itemList, setItemList] = useState([
   //   { id: 1, name: "무", isBought: false },
